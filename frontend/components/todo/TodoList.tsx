@@ -14,7 +14,7 @@ export function TodoList() {
     const [todos, setTodos] = React.useState<Todo[]>(initialTodos)
     return (<div className='todo-container'>
         <button data-testid='add-todo-btn' onClick={() => AddTodo(todos, setTodos)}>Add Todo</button>
-        {todos.toSorted((a, b) => a.id - b.id).map(todo => <TodoItem 
+        {[...todos].sort((a, b) => a.id - b.id).map(todo => <TodoItem 
             modifyTodo={newTodo => modifyTodo(newTodo, todos, setTodos)} 
             removeTodo={id => removeTodo(id, todos, setTodos)}
             key={todo.id} 
@@ -25,7 +25,7 @@ export function TodoList() {
 
 function AddTodo(todos: Todo[], setTodos: SetTodos) {
     const newTodo = {
-        id: (todos.map(todo => todo.id).toSorted().pop() ?? -1) + 1,
+        id: (todos.map(todo => todo.id).sort().pop() ?? -1) + 1,
         message: "",
         isDone: false,
     }
