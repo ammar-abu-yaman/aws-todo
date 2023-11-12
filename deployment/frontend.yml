@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:  
+  todoVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: true
+    
+  # gateway
+
+  todoGateway:
+    Type: AWS::EC2::InternetGateway
+
+  todoGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref todoVpc
+      InternetGatewayId: !Ref todoGateway
+
+  todoRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref todoVpc
+
+
+
+  # public subnets
+
+  public1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref todoVpc
+      CidrBlock: 10.1.1.0/24
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+
+  public2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref todoVpc
+      CidrBlock: 10.1.2.0/24
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+
+
+  todoInternetRoute:
+    Type: "AWS::EC2::Route"
+    DependsOn: todoGatewayAttachment
+    Properties:
+      RouteTableId: !Ref todoRouteTable
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref todoGateway
+
+  publicRoutetableAssociation1:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref public1
+      RouteTableId: !Ref todoRouteTable
+
+  publicRoutetableAssociation2:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref public2
+      RouteTableId: !Ref todoRouteTable
+
+    
+  # private subnets
+
+  private1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref todoVpc
+      CidrBlock: 10.1.3.0/24
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+
+  private2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref todoVpc
+      CidrBlock: 10.1.4.0/24
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+
